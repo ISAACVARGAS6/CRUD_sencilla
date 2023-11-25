@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+</head>
+<body>
+    <h1>Task Manager</h1>
+
+    <!-- Formulario para agregar tareas -->
+    <form id="addTaskForm">
+        <label for="taskName">Tarea:</label>
+        <input type="text" id="taskName" required>
+        <button type="submit">Agregar Tarea</button>
+    </form>
+
+    <!-- Lista de tareas -->
+    <ul id="taskList"></ul>
+
+    <script>
+        // Almacenar tareas localmente en el navegador
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        // Función para agregar tarea
+        function addTask(taskName) {
+            const newTask = { name: taskName };
+            tasks.push(newTask);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Función para actualizar la lista de tareas
+        function updateTaskList() {
+            const taskListElement = document.getElementById('taskList');
+            taskListElement.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index}: ${task.name}`;
+
+                // Botones para editar y eliminar
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Editar';
+                editButton.addEventListener('click', () => editTask(index, task.name));
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.addEventListener('click', () => deleteTask(index));
+
+                listItem.appendChild(editButton);
+                listItem.appendChild(deleteButton);
+
+                taskListElement.appendChild(listItem);
+            });
+        }
+
+        // Evento cuando el formulario se envía (agregar tarea)
+        document.getElementById('addTaskForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const taskName = document.getElementById('taskName').value;
+            addTask(taskName);
+            document.getElementById('taskName').value = '';
+            updateTaskList();
+        });
+
+        // Función para editar una tarea
+        function editTask(index, currentName) {
+            const newName = prompt('Editar tarea:', currentName);
+            if (newName !== null) {
+                tasks[index].name = newName;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                updateTaskList();
+            }
+        }
+
+        // Función para eliminar una tarea
+        function deleteTask(index) {
+            const confirmDelete = confirm('¿Estás seguro de que deseas eliminar esta tarea?');
+            if (confirmDelete) {
+                tasks.splice(index, 1);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                updateTaskList();
+            }
+        }
+
+        // Llamar a la función para actualizar la lista de tareas al cargar la página
+        updateTaskList();
+    </script>
+</body>
+</html>
